@@ -1,13 +1,17 @@
 import random
+from variables import calc
 
+num_of_questions = 12
+print(calc)
+print("Вітаю у тренажері таблиці множення!")
+print(f"Пропоную вирішити {num_of_questions} прикладів.")
 
 def multiplication_quiz():
-    print("Вітаємо у тренажері таблиці множення!")
 
-    level = input("Оберіть рівень складності: Звичайний школяр (1) / Ентузіаст (2) / Математик-маньяк (3): ")
+    level = input("Обери рівень складності: Звичайний школяр (1) / Ентузіаст (2) / Математик-маніяк (3): ")
 
     if level == "1":
-        min_val, max_val = 2, 10
+        min_val, max_val = 2, 9
     elif level == "2":
         min_val, max_val = 3, 12
     else:
@@ -15,24 +19,27 @@ def multiplication_quiz():
 
     correct_answers = 0
 
-    for question_num in range(1, 16):
+    for question_num in range(num_of_questions):
         a = random.randint(min_val, max_val)
         b = random.randint(min_val, max_val)
         correct_result = a * b
 
-        user_answer = int(input(f"{question_num} приклад: {a} * {b} = "))
+        user_answer = int(input(f"{question_num + 1} приклад: {a} * {b} = "))
 
         if user_answer == correct_result:
-            print(random.choice(["Вірно!", "Молодець!", "Super!", "Чудово!"]))
+            print(random.choice(["Вірно!", "Правильно!", "Чемпіон!", "Молодець!", "Давай ще!", "Так тримати!",
+                                 "Супер!", "Чудово!", "Супер-пупер!", "Красунчик!", "Правильно!"]))
             correct_answers += 1
         else:
-            print(f"Помилився, правильна відповідь: {correct_result}.")
+            print(f"Будь уважним, правильна відповідь: {correct_result}.")
 
-    print(f"\nГра закінчена. Ви правильно відповіли на {correct_answers} з 15 запитань!\nТак тримати!")
+    print(f"\nРаунд закінчився! Ти правильно відповів на {correct_answers} з {num_of_questions} запитань!")
 
-    play_again = input("Хочете зіграти ще раз? (yes/no): ")
+    play_again = input("Хочеш зіграти ще раз? (yes/no): ")
     if play_again.lower() == 'yes':
         multiplication_quiz()
 
+
 # Запуск програми
 multiplication_quiz()
+
