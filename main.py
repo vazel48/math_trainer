@@ -6,8 +6,8 @@ print(calc)
 print("Вітаю у тренажері таблиці множення!")
 print(f"Пропоную вирішити {num_of_questions} прикладів.")
 
-def multiplication_quiz():
 
+def multiplication_quiz():
     level = input("Обери рівень складності: Звичайний школяр (1) / Ентузіаст (2) / Математик-маніяк (3): ")
 
     if level == "1":
@@ -15,23 +15,28 @@ def multiplication_quiz():
     elif level == "2":
         min_val, max_val = 3, 12
     else:
-        min_val, max_val = 6, 15
+        min_val, max_val = 5, 15
 
     correct_answers = 0
+    used_questions = set()
+    question_num = 0
 
-    for question_num in range(num_of_questions):
-        a = random.randint(min_val, max_val)
-        b = random.randint(min_val, max_val)
-        correct_result = a * b
+    while question_num < num_of_questions:
+        a, b = random.randint(min_val, max_val), random.randint(min_val, max_val)
 
-        user_answer = int(input(f"{question_num + 1} приклад: {a} * {b} = "))
+        if (a, b) not in used_questions:
+            used_questions.add((a, b))
+            correct_result = a * b
+            user_answer = int(input(f"{question_num + 1} приклад: {a} * {b} = "))
 
-        if user_answer == correct_result:
-            print(random.choice(["Вірно!", "Правильно!", "Чемпіон!", "Молодець!", "Давай ще!", "Так тримати!",
-                                 "Супер!", "Чудово!", "Супер-пупер!", "Красунчик!", "Правильно!"]))
-            correct_answers += 1
-        else:
-            print(f"Будь уважним, правильна відповідь: {correct_result}.")
+            if user_answer == correct_result:
+                print(random.choice(["Вірно!", "Чемпіон!", "Молодець!", "Давай ще!", "Так тримати!",
+                                     "Супер!", "Чудово!", "Супер-пупер!", "Красунчик!", "Правильно!"]))
+                correct_answers += 1
+            else:
+                print(f"Будь уважним, правильна відповідь: {correct_result}.")
+
+            question_num += 1
 
     print(f"\nРаунд закінчився! Ти правильно відповів на {correct_answers} з {num_of_questions} запитань!")
 
@@ -42,4 +47,3 @@ def multiplication_quiz():
 
 # Запуск програми
 multiplication_quiz()
-
