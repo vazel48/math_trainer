@@ -7,4 +7,4 @@ This is just a draft of the basic version. A final version with a nice GUI will 
 Thanks to my kids for the idea!
 
 
-* Reminder for me: pyinstaller -F --icon=calculator.ico --name=multiplication_trainer_v.0.2 main.py
+* Reminder for me: pyinstaller -F --icon=calculator.ico --name=math_trainer_v.0.3 main.py
