@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Results</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Your Results</h2>
+        <p><strong>You got {{ score }} out of 15 questions correct.</strong></p>
+        <p><strong>Time elapsed: {{ elapsed_time }} seconds</strong></p>
+        <div class="results-list">
+            {% for question, user_answer, correct_answer in zip(questions, user_answers, correct_answers) %}
+                <div class="{{ 'incorrect' if user_answer|string != correct_answer|string else 'correct' }}">
+                    <p>{{ loop.index }}. {{ question }} =
+                        {% if user_answer|string != correct_answer|string %}
+                            <span class="{{ 'no-answer' if user_answer == 'No answer' else 'incorrect' }}">
+                                {{ user_answer }}
+                            </span>
+                            <span class="correct-answer">(Correct answer: {{ correct_answer }})</span>
+                        {% else %}
+                            {{ user_answer }}
+                        {% endif %}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+        <br><br>
+        <a href="{{ url_for('home') }}" class="try-again-button">Try Again</a>
+    </div>
+</body>
+</html>

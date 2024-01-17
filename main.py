@@ -1,68 +1,80 @@
+from flask import Flask, render_template, request, redirect, url_for, session
 import random
-from variables import calc
+import time
 from addition import generate_addition_question
 from subtraction import generate_subtraction_question
 from multiplication import generate_multiplication_question
+from serverless_wsgi import handle_request
+from werkzeug.wrappers import Request, Response
 
-num_of_questions = 12
-
-print(calc)
-print("Вітаю у математичному тренажері!")
-print(f"Пропоную вирішити {num_of_questions} прикладів. Час необмежений.")
-# Номерація прикладів where?
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
 
-def get_operation_choice():
-    print("Обери дію: Додавання (1) / Віднімання (2) / Множення (3) / Random (4)")
-    return input("Твій вибір: ")
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    if request.method == 'POST':
+        session['operation'] = request.form['operation']
+        session['level'] = request.form['level']
+        session['score'] = 0
+        session['question_number'] = 0
+        session['questions'] = []
+        session['user_answers'] = []
+        session['correct_answers'] = []
+        session['start_time'] = time.time()  # Start the timer
+        return redirect(url_for('quiz'))
+    return render_template('index.html')
 
 
-def get_level():
-    return input("Обери рівень складності: Першокласник (1) / Master_Raven (2) / Heihachi_Mishima (3): ")
-
-
+@app.route('/quiz', methods=['GET', 'POST'])
 def quiz():
-    operation = get_operation_choice()
-    level = get_level()
+    if 'operation' not in session or 'level' not in session:
+        return redirect(url_for('home'))
 
-    correct_answers = 0
-    question_number = 1
+    if session['question_number'] >= 15:
+        session['end_time'] = time.time()  # End the timer
+        return redirect(url_for('results'))
 
-    for _ in range(num_of_questions):
-        if operation == "1" or (operation == "4" and random.choice(["1", "2", "3"]) == "1"):
-            question, correct_result = generate_addition_question(level)  # tuple unpacking
-        elif operation == "2" or (operation == "4" and random.choice(["1", "2", "3"]) == "2"):
-            question, correct_result = generate_subtraction_question(level)  # tuple unpacking
-        else:
-            question, correct_result = generate_multiplication_question(level)  # tuple unpacking
-
-        try:
-            user_answer = int(input(f"{question_number} приклад: {question} = "))
-            if user_answer == correct_result:
-                print(random.choice(["Вірно!", "Чемпіон!", "Молодець!", "Давай ще!", "Так тримати!",
-                                     "Супер!", "Чудово!", "Супер-пупер!", "Красунчик!", "Правильно!"]))
-                correct_answers += 1
-            else:
-                print(f"Будь уважнішим, правильна відповідь: {correct_result}.")
-        except ValueError:
-            print("Це не схоже на число. Будь уважнішим!")
-        question_number += 1
-
-    print(f"\nРаунд закінчився! Ти правильно вирішив {correct_answers} з {num_of_questions} прикладів!")
-
-    # Обрахунок відсотка правильних відповідей
-    percentage_correct = (correct_answers / num_of_questions) * 100
-    # Визначення рівня успішності на основі відсотка
-    if percentage_correct == 100:
-        print("Відмінно!")
-    elif percentage_correct >= 70:
-        print("Молодець!")
+    if request.method == 'POST':
+        user_answer = request.form.get('answer')
+        correct_answer = session.get('answer')
+        session['questions'].append(session['question'])
+        session['user_answers'].append(user_answer if user_answer and user_answer.isdigit() else "No answer")
+        session['correct_answers'].append(correct_answer)
+        if user_answer and user_answer.isdigit() and int(user_answer) == correct_answer:
+            session['score'] += 1
+        session['question_number'] += 1
+        return redirect(url_for('quiz'))
     else:
-        print("Трішки піднажми!")
+        operation = session['operation']
+        if operation == 'random':
+            operation = random.choice(['addition', 'subtraction', 'multiplication'])
+        question_func = {
+            'addition': generate_addition_question,
+            'subtraction': generate_subtraction_question,
+            'multiplication': generate_multiplication_question
+        }[operation]
+        question, answer = question_func(session['level'])
+        session['question'] = question
+        session['answer'] = answer
+        return render_template('question.html', question=question, question_number=session['question_number'] + 1)
 
-    play_again = input("\nХочеш зіграти ще раз? (yes/no): ")
-    if play_again.lower() == 'yes':
-        quiz()
+
+@app.route('/results')
+def results():
+    questions = session.get('questions', [])
+    user_answers = [str(answer) if answer is not None else 'No answer' for answer in session.get('user_answers', [])]
+    correct_answers = session.get('correct_answers', [])
+    score = session.get('score', 0)
+    elapsed_time = int(session.get('end_time', 0) - session.get('start_time', 0))
+    session.clear()
+    return render_template('results.html', score=score, questions=questions, user_answers=user_answers, correct_answers=correct_answers, elapsed_time=elapsed_time, zip=zip)
 
 
-quiz()
+# Create handler for AWS Lambda
+def lambda_handler(event, context):
+    return handle_request(app, event, context)
+
+
+if __name__ == '__main__':
+    app.run(debug=False, host='0.0.0.0')

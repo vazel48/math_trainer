@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #e0f7fa;
+}
+.container {
+    width: 80%;
+    margin: 0 auto;
+    background-color: #bbdefb;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+}
+.results-list {
+    text-align: left;
+    margin-left: 100px; /* Adjust this as needed for alignment */
+}
+.incorrect {
+    color: red;
+}
+.correct-answer {
+    display: inline;
+    color: green;
+}
+.correct {
+    color: black;
+}
+.no-answer {
+    color: grey;
+}
+.try-again-button {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+.try-again-button:hover {
+    background-color: #45a049;
+}
